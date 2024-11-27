@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:400,100,300,700" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3/dist/web3.min.js"></script>
   </head>
   <body>
     <section class="ftco-section">
@@ -79,6 +80,11 @@
             </div>
           </div>
         </div>
+
+        <!-- Connect to Blockchain Button -->
+        <div class="text-center mt-5">
+          <button id="connectButton" class="btn btn-success">Connect to Blockchain</button>
+        </div>
       </div>
     </section>
 
@@ -91,7 +97,45 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/web3.min.js"></script>
+
+    <!-- Add Web3.js and Truffle Contract -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.4/dist/web3.min.js"></script>
     <script src="js/truffle-contract.js"></script>
+
+    <!-- Add your custom JS for Web3 connection -->
+    <script>
+      let web3;
+      let contractInstance;
+      const contractAddress = 'YOUR_CONTRACT_ADDRESS_HERE'; // Replace with your deployed contract address
+      const contractABI = [ /* Your Contract ABI */ ]; // Replace with your contract's ABI
+
+      // Initialize Web3
+      async function initializeWeb3() {
+          if (typeof window.ethereum !== 'undefined') {
+              try {
+                  // Request accounts
+                  const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                  console.log('Connected account:', accounts[0]);
+
+                  // Set up Web3 instance
+                  web3 = new Web3(window.ethereum);
+
+                  // Load the smart contract
+                  contractInstance = new web3.eth.Contract(contractABI, contractAddress);
+                  console.log('Contract instance loaded:', contractInstance);
+
+                  alert('Connected to Metamask!');
+              } catch (error) {
+                  console.error('User denied account access:', error);
+                  alert('Please connect your wallet!');
+              }
+          } else {
+              alert('Metamask is not installed! Please install it to use this app.');
+          }
+      }
+
+      // Add event listener for the button
+      document.getElementById('connectButton').addEventListener('click', initializeWeb3);
+    </script>
   </body>
 </html>
