@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"  # Map frontend port to host
+    volumes:
+      - ./client:/app/client
+    working_dir: /app/client
+    command: npm start  # Assuming the frontend uses `npm start`
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8545:8545"  # Expose Ganache port for local blockchain
+    volumes:
+      - ./contracts:/app/contracts
+      - ./migrations:/app/migrations
+    working_dir: /app
+    command: ganache-cli --port 8545 --deterministic & truffle migrate --network development
+    depends_on:
+      - frontend
