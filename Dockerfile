@@ -1,24 +1,20 @@
-# Use an official Node.js runtime as a parent image
-FROM node:16
+# Use a Node.js base image
+FROM node:18-alpine
 
-# Set the working directory in the container
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json into the container
+# Copy only package.json and package-lock.json first to install dependencies
 COPY package*.json ./
 
-# Install project dependencies (both frontend and backend)
+# Install dependencies
 RUN npm install
 
 # Copy the entire project into the container
 COPY . .
 
-# Install Truffle globally
-RUN npm install -g truffle
-
-# Expose ports for Ganache and the app (default Ganache port is 7545)
-EXPOSE 8545
+# Expose the port your app runs on
 EXPOSE 3000
 
-# Run Ganache (for testing the blockchain locally)
-CMD ganache-cli --port 8545 --deterministic & truffle migrate --network development
+# Command to start the app
+CMD ["npm", "run", "dev"]

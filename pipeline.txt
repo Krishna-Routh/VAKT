@@ -1,0 +1,65 @@
+pipeline {
+    agent any
+
+    triggers {
+        // Poll GitHub SCM every 5 minutes
+        pollSCM('* * * * *') 
+    }
+
+    environment {
+        // Set environment variables if needed
+        MAVEN_HOME = "C:\\Program Files\\Maven\\apache-maven-3.9.9" // Update this path to your Maven installation
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Clone GitHub repository
+                git branch: 'master', url: 'https://github.com/Krishna-Routh/VAKT.git'
+            }
+        }
+
+        stage('Build with Maven') {
+            steps {
+                // Run Maven commands (use double quotes to handle spaces in the path)
+                bat "\"${MAVEN_HOME}\\bin\\mvn\" clean install"
+            }
+        }
+
+        stage('Run Tests') {
+            steps {
+                // Run Maven test phase (use double quotes to handle spaces in the path)
+                bat "\"${MAVEN_HOME}\\bin\\mvn\" test"
+            }
+        }
+
+        stage('Build and Run Docker Compose') {
+            steps {
+                script {
+                    // Run docker-compose up to start the application
+                    bat 'docker-compose -f docker-compose.yml up -d'
+                }
+            }
+        }
+    }
+
+    post {
+        // Notifications or clean-up actions
+        success {
+            echo 'Build and Docker deployment completed successfully!'
+        }
+        failure {
+            echo 'Build failed. Please check the logs.'
+        }
+        always {
+            // Clean up Docker containers and images (if needed)
+            script {
+                // Stop and remove containers
+                bat 'docker-compose down || exit 0'
+
+                // Optionally remove images
+                bat 'docker rmi -f vakt-app || exit 0'
+            }
+        }
+    }
+}
